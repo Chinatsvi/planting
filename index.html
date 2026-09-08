@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1F4D2C">
-  <meta name="description" content="Planting calendar for African farmers covering maize, groundnuts, beans, cabbage, tomatoes and more crops — coming soon to AgriBase.">
+  <meta name="description" content="Free planting calendar for African farmers — pick your hemisphere and crop to get a recommended planting window and growth-stage timeline for maize, groundnuts, beans, cabbage, tomatoes and more.">
   <title>Planting Calendar | AgriBase</title>
   <link rel="icon" type="image/png" href="/favicon-256.png">
   <link rel="apple-touch-icon" href="/favicon-256.png">
@@ -13,18 +13,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Karla:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <meta name="google-adsense-account" content="ca-pub-2606126305565597">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2606126305565597" crossorigin="anonymous"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "AgriBase Planting Calendar",
+    "description": "A planting calendar tool that recommends planting windows and growth-stage timelines for common African crops based on hemisphere and planting date.",
+    "author": { "@type": "Person", "name": "Enock Chinatsvi", "url": "https://github.com/Chinatsvi" },
+    "publisher": { "@type": "Organization", "name": "AgriBase" },
+    "mainEntityOfPage": "https://chinatsvi.github.io/planting/"
+  }
+  </script>
+
   <style>
     :root {
       --soil: #A63A1F; --soil-dark: #7A2A16; --field: #1F4D2C; --field-dark: #163A20; --field-mid: #2E6B3E;
       --gold: #E3A72E; --gold-dark: #C4881B; --cream: #FBF3E6; --paper: #F3E7D2; --ink: #2A2620; --muted: #6E6152;
-      --border: #E4D3B8; --field-tint: #E3EEE4; --shadow: 0 18px 46px rgba(42,38,32,.16); --shadow-sm: 0 8px 22px rgba(42,38,32,.10);
+      --border: #E4D3B8; --field-tint: #E3EEE4; --soil-tint: #F3E0D6; --gold-tint: #FBEBC8; --ink-tint: #ECE6DA;
+      --shadow: 0 18px 46px rgba(42,38,32,.16); --shadow-sm: 0 8px 22px rgba(42,38,32,.10);
       --font-display: "Fraunces", Georgia, serif; --font-body: "Karla", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body { margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--cream); line-height: 1.6; }
     a { color: inherit; }
     .eyebrow { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 600; }
+
+    /* Nav */
     .nav { position: sticky; top: 0; z-index: 40; background: linear-gradient(90deg, var(--field-dark), var(--field)); color: var(--cream); box-shadow: 0 3px 18px rgba(0,0,0,.18); }
     .nav-inner { position: relative; width: min(1160px, calc(100% - 40px)); margin: auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
     .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 21px; }
@@ -33,8 +50,11 @@
     .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weight: 600; }
     .nav-links a { text-decoration: none; opacity: .92; }
     .nav-links a:hover { opacity: 1; }
+    .nav-links a.active { opacity: 1; border-bottom: 2px solid var(--gold); padding-bottom: 4px; }
     .nav-toggle-input { display: none; }
     .nav-toggle { display: none; cursor: pointer; }
+
+    /* Page hero */
     .page-hero {
       position: relative;
       background: repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 26px), linear-gradient(160deg, var(--field-dark) 0%, var(--field) 55%, var(--field-mid) 100%);
@@ -43,20 +63,116 @@
     .page-hero-inner { position: relative; z-index: 1; width: min(880px, calc(100% - 40px)); margin: auto; text-align: center; }
     .page-hero-badge { display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px 7px 8px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); font-size: 12.5px; font-weight: 600; margin-bottom: 20px; }
     .page-hero h1 { margin: 0 0 16px; font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -.8px; }
-    .page-hero p.lead { max-width: 560px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 17px); color: rgba(251,243,230,.92); }
+    .page-hero p.lead { max-width: 620px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 17px); color: rgba(251,243,230,.92); }
     .page-hero-divider { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 40px; }
+
+    /* Ad slot */
     .ad-slot-wrap { background: var(--cream); padding: 0 20px; }
     .ad-slot { width: min(1100px, calc(100% - 32px)); margin: 0 auto 10px; padding: 14px; text-align: center; overflow: hidden; min-height: 90px; border: 1px dashed var(--border); border-radius: 14px; }
     .ad-slot .label { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-    .soon-wrap { padding: 70px 20px; }
-    .soon-card { width: min(640px, 100%); margin: auto; background: var(--paper); border: 1px solid var(--border); border-radius: 20px; padding: 40px 34px; text-align: center; box-shadow: var(--shadow-sm); }
-    .soon-card .big-emoji { font-size: 44px; margin-bottom: 14px; display: block; }
-    .soon-card h2 { margin: 0 0 12px; font-family: var(--font-display); color: var(--field); font-weight: 700; font-size: clamp(20px, 2.6vw, 25px); }
-    .soon-card p { color: var(--muted); font-size: 15px; margin: 0 0 22px; }
-    .soon-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 26px; }
-    .soon-list span { background: var(--cream); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--field); }
-    .button { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 11px; text-decoration: none; font-weight: 800; font-size: 15px; background: var(--gold); color: var(--ink); box-shadow: var(--shadow-sm); transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+
+    /* Tool layout */
+    .tool-wrap { padding: 50px 20px; }
+    .tool-card {
+      width: min(820px, 100%); margin: auto;
+      background: var(--paper); border: 1px solid var(--border); border-radius: 22px;
+      padding: 34px 30px; box-shadow: var(--shadow-sm);
+    }
+    .step-label {
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em;
+      font-size: 11.5px; color: var(--soil); margin: 0 0 12px;
+    }
+    .step-label:not(:first-child) { margin-top: 28px; }
+
+    /* Hemisphere toggle */
+    .hemi-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hemi-btn {
+      flex: 1; min-width: 160px;
+      display: flex; align-items: center; gap: 10px; justify-content: center;
+      padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--cream); font-weight: 700; font-size: 13.5px; color: var(--field);
+      cursor: pointer; transition: all .15s ease;
+    }
+    .hemi-btn.selected { background: var(--field); color: var(--cream); border-color: var(--field); }
+
+    /* Crop grid */
+    .crop-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .crop-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 12px 6px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--cream); cursor: pointer; transition: all .15s ease;
+    }
+    .crop-btn .emoji { font-size: 22px; }
+    .crop-btn .name { font-size: 11px; font-weight: 700; color: var(--field); text-align: center; }
+    .crop-btn.selected { background: var(--field-tint); border-color: var(--field); }
+
+    /* Date field */
+    .date-row { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; }
+    .date-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+    .date-field label { font-size: 12.5px; font-weight: 700; color: var(--field); }
+    .date-field input {
+      font-family: var(--font-body); font-size: 15px; padding: 11px 12px;
+      border-radius: 9px; border: 1.5px solid var(--border); background: var(--cream); color: var(--ink);
+    }
+    .date-field input:focus { outline: none; border-color: var(--field-mid); }
+
+    .calc-button {
+      margin-top: 26px; width: 100%; padding: 15px 22px; border-radius: 12px; border: none;
+      background: var(--gold); color: var(--ink); font-weight: 800; font-size: 15.5px; cursor: pointer;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .calc-button:hover { background: var(--gold-dark); transform: translateY(-1px); }
+
+    /* Results */
+    .result { display: none; margin-top: 28px; }
+    .result.show { display: block; }
+    .result-window {
+      background: var(--cream); border: 1px dashed var(--soil); border-radius: 14px;
+      padding: 20px 22px; margin-bottom: 22px;
+    }
+    .result-window .rw-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; font-size: 11px; color: var(--soil); margin: 0 0 6px; }
+    .result-window .rw-value { font-family: var(--font-display); font-size: clamp(20px, 2.8vw, 25px); font-weight: 700; color: var(--field); margin: 0 0 4px; }
+    .result-window .rw-sub { font-size: 13.5px; color: var(--muted); margin: 0; }
+
+    .timeline { position: relative; padding-left: 6px; }
+    .tl-item { display: flex; gap: 14px; padding-bottom: 20px; position: relative; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-node {
+      flex: none; width: 34px; height: 34px; border-radius: 50%;
+      background: var(--field-tint); border: 2px solid var(--field); color: var(--field);
+      display: grid; place-items: center; font-size: 15px; z-index: 1;
+    }
+    .tl-item:not(:last-child)::before {
+      content: ""; position: absolute; left: 16px; top: 34px; bottom: -4px; width: 2px; background: var(--border);
+    }
+    .tl-body { flex: 1; background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .tl-body .tl-name { font-weight: 700; font-size: 13.5px; color: var(--ink); }
+    .tl-body .tl-date { font-size: 12px; font-weight: 700; color: var(--field); margin: 2px 0 4px; }
+    .tl-body .tl-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+    .calc-note { margin-top: 20px; font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--border); padding-top: 14px; }
+    .calc-note a { color: var(--soil); font-weight: 700; text-decoration: none; }
+    .calc-note a:hover { text-decoration: underline; }
+
+    /* Crop reference grid below tool */
+    .ref-wrap { background: var(--paper); padding: 60px 20px; }
+    .ref-inner { width: min(1000px, 100%); margin: auto; }
+    .section-title { text-align: center; margin: 0 0 10px; color: var(--field); font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 28px); letter-spacing: -.5px; }
+    .section-intro { max-width: 560px; margin: 0 auto 34px; text-align: center; color: var(--muted); font-size: 14.5px; }
+    .ref-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .ref-card { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; text-align: center; }
+    .ref-card .emoji { font-size: 22px; display: block; margin-bottom: 6px; }
+    .ref-card .name { font-weight: 700; font-size: 12.5px; color: var(--field); margin-bottom: 4px; }
+    .ref-card .days { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+
+    /* CTA */
+    .cta { background: var(--cream); text-align: center; padding: 80px 20px; }
+    .cta-frame { max-width: 620px; margin: 0 auto; border: 2px dashed var(--field); border-radius: 20px; padding: 44px 34px; }
+    .cta h2 { color: var(--field); font-family: var(--font-display); font-weight: 700; margin: 6px 0 14px; font-size: clamp(22px, 3vw, 28px); }
+    .button { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 11px; text-decoration: none; font-weight: 800; font-size: 15px; background: var(--gold); color: var(--ink); box-shadow: var(--shadow-sm); transition: transform .2s ease, box-shadow .2s ease, background .2s ease; margin-top: 8px; }
     .button:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    /* Footer */
     footer { position: relative; background: linear-gradient(180deg, #1E2B18, #141F11); color: rgba(251,243,230,.88); padding: 60px 20px 30px; }
     .footer-top-edge { position: absolute; top: -1px; left: 0; right: 0; width: 100%; height: 40px; }
     .footer-inner { width: min(1120px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
@@ -67,6 +183,11 @@
     .footer-links a { text-decoration: none; opacity: .85; }
     .footer-links a:hover { opacity: 1; }
     .footer-bottom { width: min(1120px, calc(100% - 40px)); margin: 30px auto 0; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); text-align: center; font-size: 12.5px; opacity: .65; font-family: var(--font-mono); }
+
+    @media (max-width: 720px) {
+      .crop-grid { grid-template-columns: repeat(4, 1fr); }
+      .ref-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 560px) {
       .nav-links {
         position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: flex-start; gap: 6px;
@@ -79,17 +200,20 @@
       .nav-toggle-input:checked ~ .nav-toggle span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
       .nav-toggle-input:checked ~ .nav-toggle span:nth-child(2){ opacity: 0; }
       .nav-toggle-input:checked ~ .nav-toggle span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+      .crop-grid { grid-template-columns: repeat(3, 1fr); }
+      .ref-grid { grid-template-columns: repeat(2, 1fr); }
       .page-hero { padding: 44px 18px 60px; }
-      .soon-card { padding: 30px 22px; }
+      .tool-card { padding: 26px 20px; }
       .footer-inner { justify-content: center; text-align: center; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Navigation (universal — keep identical across all AgriBase pages) -->
   <nav class="nav">
     <div class="nav-inner">
-      <a class="brand" href="/farmers-community/">
+      <a class="brand" href="https://chinatsvi.github.io/farmers-community/">
         <span class="brand-icon"><img src="/favicon-256.png" alt="AgriBase icon"></span>
         <span>AgriBase</span>
       </a>
@@ -98,13 +222,14 @@
         <span></span><span></span><span></span>
       </label>
       <div class="nav-links">
-        <a href="/farmers-community/">🏠 Home</a>
-        <a href="/planting/">🌱 Planting</a>
-        <a href="/weather/">🌦️ Weather</a>
-        <a href="/pests/">🐛 Pests</a>
-        <a href="/tools/">🧮 Calculators</a>
-        <a href="/market/">💰 Market</a>
-        <a href="/farmers-community/#features">📚 Knowledge</a>
+        <a href="https://chinatsvi.github.io/farmers-community/">🏠 Home</a>
+        <a href="https://chinatsvi.github.io/planting/" class="active">🌱 Planting</a>
+        <a href="https://chinatsvi.github.io/weather/">🌦️ Weather</a>
+        <a href="https://chinatsvi.github.io/pests/">🐛 Pests</a>
+        <a href="https://chinatsvi.github.io/agribase-farm-tools/">🧰 Farm Tools</a>
+        <a href="https://chinatsvi.github.io/farmer-calculators/">🧮 Calculators</a>
+        <a href="https://chinatsvi.github.io/market/">💰 Market</a>
+        <a href="https://chinatsvi.github.io/farmers-community/#features">📚 Knowledge</a>
       </div>
     </div>
   </nav>
@@ -113,7 +238,7 @@
     <div class="page-hero-inner">
       <span class="page-hero-badge">🌱 Planting Calendar</span>
       <h1>When to Plant, Crop by Crop</h1>
-      <p class="lead">A full planting calendar for maize, groundnuts, beans, cabbage, tomatoes, onions and more is on the way.</p>
+      <p class="lead">Pick your hemisphere and crop below to get a recommended planting window and a growth-stage timeline you can plan around.</p>
     </div>
     <svg class="page-hero-divider" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="#FBF3E6" d="M0,6 L40,22 L80,3 L120,30 L160,10 L200,34 L240,4 L280,26 L320,14 L360,32 L400,2 L440,20 L480,36 L520,8 L560,24 L600,12 L640,30 L680,4 L720,18 L760,34 L800,6 L840,28 L880,2 L920,22 L960,32 L1000,10 L1040,26 L1080,4 L1120,20 L1160,34 L1200,8 L1200,40 L0,40 Z"></path>
@@ -128,18 +253,72 @@
   </div>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 
-  <section class="soon-wrap">
-    <div class="soon-card">
-      <span class="big-emoji">🌱</span>
-      <h2>Planting Calendar — Coming Soon</h2>
-      <p>We're building a crop-by-crop planting calendar so you know exactly when to plant based on your region and season.</p>
-      <div class="soon-list">
-        <span>Maize</span><span>Groundnuts</span><span>Beans</span><span>Cabbage</span><span>Tomatoes</span><span>Onions</span><span>Butternut</span><span>Potatoes</span><span>Sorghum</span><span>Cotton</span>
+  <!-- Tool -->
+  <section class="tool-wrap">
+    <div class="tool-card">
+
+      <p class="step-label">Step 1 · Your hemisphere</p>
+      <div class="hemi-row" id="hemiRow">
+        <div class="hemi-btn selected" data-hemi="south">🌍 Southern Hemisphere<br>(e.g. Zimbabwe, South Africa, Zambia, Malawi)</div>
+        <div class="hemi-btn" data-hemi="north">🌎 Northern Hemisphere<br>(e.g. Nigeria, Ghana, most of West Africa)</div>
       </div>
-      <a class="button" href="/tools/">🧮 Try the Calculators Instead</a>
+
+      <p class="step-label">Step 2 · Choose a crop</p>
+      <div class="crop-grid" id="cropGrid"></div>
+
+      <p class="step-label">Step 3 · Planting date</p>
+      <div class="date-row">
+        <div class="date-field">
+          <label for="plantDate">When do you plan to plant?</label>
+          <input type="date" id="plantDate">
+        </div>
+      </div>
+
+      <button class="calc-button" onclick="generatePlan()">Generate Planting Plan</button>
+
+      <div class="result" id="result">
+        <div class="result-window">
+          <p class="rw-label">Recommended planting window</p>
+          <p class="rw-value" id="rwValue">—</p>
+          <p class="rw-sub" id="rwSub"></p>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+
+        <p class="calc-note">
+          These windows follow general seasonal patterns for your hemisphere — actual timing shifts with your specific region, rainfall and altitude.
+          For location-matched planting dates and saved crop calendars, use the <a href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">AgriBase app</a>.
+        </p>
+      </div>
+
     </div>
   </section>
 
+  <!-- Crop reference -->
+  <section class="ref-wrap">
+    <div class="ref-inner">
+      <h2 class="section-title">Crop Reference</h2>
+      <p class="section-intro">Typical days to maturity for each crop, used to build your timeline above.</p>
+      <div class="ref-grid" id="refGrid"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-frame">
+      <span class="eyebrow" style="color:var(--soil); display:block; margin-bottom:12px;">Want it matched to your exact farm?</span>
+      <h2>Get the Full Crop Calendar in the App</h2>
+      <p class="section-intro" style="margin-bottom:0;">
+        The AgriBase app matches planting windows to your exact district, lets
+        you save crop plans, and sends stage-by-stage reminders.
+      </p>
+      <a class="button" href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">
+        📲 Download the App
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer (universal — keep identical across all AgriBase pages) -->
   <footer>
     <svg class="footer-top-edge" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="#1E2B18" d="M0,34 L40,18 L80,37 L120,10 L160,30 L200,6 L240,36 L280,14 L320,26 L360,8 L400,38 L440,20 L480,4 L520,32 L560,16 L600,28 L640,10 L680,36 L720,22 L760,6 L800,34 L840,12 L880,38 L920,18 L960,8 L1000,30 L1040,14 L1080,36 L1120,20 L1160,6 L1200,32 L1200,0 L0,0 Z"></path>
@@ -153,14 +332,125 @@
         <div class="footer-tagline">Connect. Learn. Farm Better.</div>
       </div>
       <div class="footer-links">
-        <a href="/farmer-community-Help-FAQ/" target="_blank" rel="noopener noreferrer">Help &amp; FAQ</a>
-        <a href="/farmer-community-privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-        <a href="/farmer-community-terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
-        <a href="/farmer-community-contact-us/" target="_blank" rel="noopener noreferrer">Contact Us</a>
+        <a href="https://chinatsvi.github.io/farmer-community-Help-FAQ/" target="_blank" rel="noopener noreferrer">Help &amp; FAQ</a>
+        <a href="https://chinatsvi.github.io/farmer-community-privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        <a href="https://chinatsvi.github.io/farmer-community-terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+        <a href="https://chinatsvi.github.io/farmer-community-contact-us/" target="_blank" rel="noopener noreferrer">Contact Us</a>
       </div>
     </div>
     <div class="footer-bottom">© 2026 Farmer Community. All rights reserved.</div>
   </footer>
+
+  <script>
+    // ---- Crop data: windows are [southern hemisphere, northern hemisphere] month ranges ----
+    const CROPS = [
+      { id: 'maize',      name: 'Maize',      emoji: '🌽', daysMin: 90,  daysMax: 140, southWindow: 'Late Oct – Dec', northWindow: 'Late Apr – Jun' },
+      { id: 'groundnuts', name: 'Groundnuts', emoji: '🥜', daysMin: 90,  daysMax: 120, southWindow: 'Nov – Dec',      northWindow: 'May – Jun' },
+      { id: 'beans',      name: 'Beans',      emoji: '🫘', daysMin: 60,  daysMax: 90,  southWindow: 'Dec – Feb',      northWindow: 'Jun – Aug' },
+      { id: 'cabbage',    name: 'Cabbage',    emoji: '🥬', daysMin: 70,  daysMax: 100, southWindow: 'Feb – Apr',      northWindow: 'Aug – Oct' },
+      { id: 'tomato',     name: 'Tomatoes',   emoji: '🍅', daysMin: 70,  daysMax: 100, southWindow: 'Aug – Sep',      northWindow: 'Feb – Mar' },
+      { id: 'onion',      name: 'Onions',     emoji: '🧅', daysMin: 90,  daysMax: 120, southWindow: 'Apr – May',      northWindow: 'Oct – Nov' },
+      { id: 'butternut',  name: 'Butternut',  emoji: '🎃', daysMin: 90,  daysMax: 110, southWindow: 'Oct – Dec',      northWindow: 'Apr – Jun' },
+      { id: 'potato',     name: 'Potatoes',   emoji: '🥔', daysMin: 90,  daysMax: 120, southWindow: 'Feb – Apr',      northWindow: 'Aug – Oct' },
+      { id: 'sorghum',    name: 'Sorghum',    emoji: '🌾', daysMin: 100, daysMax: 130, southWindow: 'Nov – Dec',      northWindow: 'May – Jun' },
+      { id: 'cotton',     name: 'Cotton',     emoji: '🌱', daysMin: 150, daysMax: 180, southWindow: 'Oct – Nov',      northWindow: 'Apr – May' },
+    ];
+
+    // ---- Growth stage template as fractions of total maturity days ----
+    const STAGE_TEMPLATE = [
+      { key: 'planting',      name: 'Planting',        emoji: '🌱', frac: 0,    note: 'Seed or transplant goes into the ground.' },
+      { key: 'establishment', name: 'Establishment',   emoji: '🌿', frac: 0.10, note: 'Roots settle in — keep soil consistently moist.' },
+      { key: 'vegetative',    name: 'Vegetative Growth', emoji: '🍃', frac: 0.35, note: 'Rapid leaf and stem growth — main window for weeding and first fertilizer top-up.' },
+      { key: 'flowering',     name: 'Flowering',       emoji: '🌸', frac: 0.60, note: 'Water stress here has the biggest yield impact — irrigate if you can.' },
+      { key: 'fillDevelopment', name: 'Fruit / Grain Fill', emoji: '🌾', frac: 0.85, note: 'Grain, fruit or tuber bulks up — keep monitoring for pests.' },
+      { key: 'harvest',       name: 'Harvest',         emoji: '🧺', frac: 1.0,  note: 'Crop reaches maturity — harvest and begin drying or curing.' },
+    ];
+
+    let selectedHemi = 'south';
+    let selectedCrop = CROPS[0];
+
+    function renderCropGrid() {
+      const grid = document.getElementById('cropGrid');
+      grid.innerHTML = '';
+      CROPS.forEach(crop => {
+        const btn = document.createElement('div');
+        btn.className = 'crop-btn' + (crop.id === selectedCrop.id ? ' selected' : '');
+        btn.innerHTML = `<span class="emoji">${crop.emoji}</span><span class="name">${crop.name}</span>`;
+        btn.onclick = () => {
+          selectedCrop = crop;
+          renderCropGrid();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderRefGrid() {
+      const grid = document.getElementById('refGrid');
+      grid.innerHTML = '';
+      CROPS.forEach(crop => {
+        const card = document.createElement('div');
+        card.className = 'ref-card';
+        card.innerHTML = `
+          <span class="emoji">${crop.emoji}</span>
+          <div class="name">${crop.name}</div>
+          <div class="days">${crop.daysMin}–${crop.daysMax} days</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    document.querySelectorAll('.hemi-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedHemi = btn.getAttribute('data-hemi');
+        document.querySelectorAll('.hemi-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    function formatDate(d) {
+      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function generatePlan() {
+      const dateInput = document.getElementById('plantDate');
+      const plantingDate = dateInput.value ? new Date(dateInput.value) : new Date();
+
+      const avgDays = Math.round((selectedCrop.daysMin + selectedCrop.daysMax) / 2);
+      const window = selectedHemi === 'south' ? selectedCrop.southWindow : selectedCrop.northWindow;
+
+      document.getElementById('rwValue').textContent = `${selectedCrop.emoji} ${selectedCrop.name}: ${window}`;
+      document.getElementById('rwSub').textContent =
+        `Typical maturity ${selectedCrop.daysMin}–${selectedCrop.daysMax} days (about ${avgDays} days), for the ${selectedHemi === 'south' ? 'Southern' : 'Northern'} Hemisphere season.`;
+
+      const timeline = document.getElementById('timeline');
+      timeline.innerHTML = '';
+
+      STAGE_TEMPLATE.forEach(stage => {
+        const stageDate = new Date(plantingDate);
+        stageDate.setDate(stageDate.getDate() + Math.round(avgDays * stage.frac));
+
+        const item = document.createElement('div');
+        item.className = 'tl-item';
+        item.innerHTML = `
+          <div class="tl-node">${stage.emoji}</div>
+          <div class="tl-body">
+            <div class="tl-name">${stage.name}</div>
+            <div class="tl-date">${formatDate(stageDate)}</div>
+            <p class="tl-note">${stage.note}</p>
+          </div>
+        `;
+        timeline.appendChild(item);
+      });
+
+      document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Init
+    document.getElementById('plantDate').valueAsDate = new Date();
+    renderCropGrid();
+    renderRefGrid();
+  </script>
 
 </body>
 </html>
