@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1F4D2C">
-  <meta name="description" content="Free planting calendar for African farmers — pick your hemisphere and crop to get a recommended planting window and growth-stage timeline for maize, groundnuts, beans, cabbage, tomatoes and more.">
+  <meta name="description" content="Free planting calendar for African farmers — pick your hemisphere, crop, production system and water source to get a recommended planting window, risk alerts and a growth-stage timeline.">
   <title>Planting Calendar | AgriBase</title>
   <link rel="icon" type="image/png" href="/favicon-256.png">
   <link rel="apple-touch-icon" href="/favicon-256.png">
@@ -19,7 +19,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "AgriBase Planting Calendar",
-    "description": "A planting calendar tool that recommends planting windows and growth-stage timelines for common African crops based on hemisphere and planting date.",
+    "description": "A planting calendar tool that recommends planting windows, risk alerts and growth-stage timelines for common African crops based on hemisphere, production system and water source.",
     "author": { "@type": "Person", "name": "Enock Chinatsvi", "url": "https://github.com/Chinatsvi" },
     "publisher": { "@type": "Organization", "name": "AgriBase" },
     "mainEntityOfPage": "https://chinatsvi.github.io/planting/"
@@ -32,6 +32,7 @@
       --gold: #E3A72E; --gold-dark: #C4881B; --cream: #FBF3E6; --paper: #F3E7D2; --ink: #2A2620; --muted: #6E6152;
       --border: #E4D3B8; --field-tint: #E3EEE4; --soil-tint: #F3E0D6; --gold-tint: #FBEBC8; --ink-tint: #ECE6DA;
       --shadow: 0 18px 46px rgba(42,38,32,.16); --shadow-sm: 0 8px 22px rgba(42,38,32,.10);
+      --danger: #B3261E; --danger-tint: #FBE4E2; --warn: #A15C00; --warn-tint: #FBEBC8; --info: #1D5B8F; --info-tint: #E1EEF7;
       --font-display: "Fraunces", Georgia, serif; --font-body: "Karla", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
     }
@@ -74,7 +75,7 @@
     /* Tool layout */
     .tool-wrap { padding: 50px 20px; }
     .tool-card {
-      width: min(820px, 100%); margin: auto;
+      width: min(860px, 100%); margin: auto;
       background: var(--paper); border: 1px solid var(--border); border-radius: 22px;
       padding: 34px 30px; box-shadow: var(--shadow-sm);
     }
@@ -82,18 +83,20 @@
       font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em;
       font-size: 11.5px; color: var(--soil); margin: 0 0 12px;
     }
-    .step-label:not(:first-child) { margin-top: 28px; }
+    .step-label:not(:first-child) { margin-top: 26px; }
+    .step-sub { font-size: 12.5px; color: var(--muted); margin: -8px 0 12px; }
 
-    /* Hemisphere toggle */
-    .hemi-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .hemi-btn {
-      flex: 1; min-width: 160px;
-      display: flex; align-items: center; gap: 10px; justify-content: center;
-      padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border);
-      background: var(--cream); font-weight: 700; font-size: 13.5px; color: var(--field);
-      cursor: pointer; transition: all .15s ease;
+    /* Generic choice-row buttons (hemisphere, frost, rainfall pattern, production, water) */
+    .choice-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .choice-btn {
+      flex: 1; min-width: 150px;
+      display: flex; align-items: center; gap: 8px; justify-content: center; text-align: center;
+      padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--cream); font-weight: 700; font-size: 13px; color: var(--field);
+      cursor: pointer; transition: all .15s ease; line-height: 1.3;
     }
-    .hemi-btn.selected { background: var(--field); color: var(--cream); border-color: var(--field); }
+    .choice-btn.selected { background: var(--field); color: var(--cream); border-color: var(--field); }
+    .choice-hidden { display: none; }
 
     /* Crop grid */
     .crop-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -124,17 +127,54 @@
     .calc-button:hover { background: var(--gold-dark); transform: translateY(-1px); }
 
     /* Results */
-    .result { display: none; margin-top: 28px; }
+    .result { display: none; margin-top: 30px; }
     .result.show { display: block; }
-    .result-window {
-      background: var(--cream); border: 1px dashed var(--soil); border-radius: 14px;
-      padding: 20px 22px; margin-bottom: 22px;
-    }
-    .result-window .rw-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; font-size: 11px; color: var(--soil); margin: 0 0 6px; }
-    .result-window .rw-value { font-family: var(--font-display); font-size: clamp(20px, 2.8vw, 25px); font-weight: 700; color: var(--field); margin: 0 0 4px; }
-    .result-window .rw-sub { font-size: 13.5px; color: var(--muted); margin: 0; }
 
-    .timeline { position: relative; padding-left: 6px; }
+    .confidence-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 999px; font-size: 12px; font-weight: 800; margin-bottom: 16px;
+    }
+    .confidence-high { background: var(--field-tint); color: var(--field); }
+    .confidence-moderate { background: var(--gold-tint); color: var(--gold-dark); }
+    .confidence-low { background: var(--soil-tint); color: var(--soil-dark); }
+    .confidence-note { font-size: 12.5px; color: var(--muted); margin: 0 0 22px; }
+
+    .windows-title, .risk-title, .harvest-title, .timeline-title {
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .07em;
+      font-size: 11.5px; color: var(--soil); margin: 0 0 12px;
+    }
+
+    .window-card {
+      border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; background: var(--cream);
+    }
+    .window-card.main { border-color: var(--field); border-width: 2px; }
+    .window-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .window-label { font-weight: 800; font-size: 14px; color: var(--ink); }
+    .window-tag { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+    .tag-main { background: var(--field-tint); color: var(--field); }
+    .tag-secondary { background: var(--gold-tint); color: var(--gold-dark); }
+    .tag-risky { background: var(--soil-tint); color: var(--soil-dark); }
+    .window-period { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--field); margin: 4px 0; }
+    .window-rationale { font-size: 13px; color: var(--muted); margin: 0; }
+
+    .risk-card {
+      display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px;
+      border: 1px solid transparent; margin-bottom: 10px; font-size: 13px;
+    }
+    .risk-danger { background: var(--danger-tint); color: var(--danger); border-color: rgba(179,38,30,.25); }
+    .risk-warning { background: var(--warn-tint); color: var(--warn); border-color: rgba(161,92,0,.25); }
+    .risk-info { background: var(--info-tint); color: var(--info); border-color: rgba(29,91,143,.25); }
+    .risk-card .risk-emoji { font-size: 18px; flex: none; }
+    .risk-card .risk-title2 { font-weight: 800; margin-bottom: 2px; }
+    .risk-card .risk-desc { opacity: .92; line-height: 1.4; }
+
+    .harvest-box {
+      background: var(--gold-tint); border: 1px solid rgba(196,136,27,.3); border-radius: 14px;
+      padding: 16px 18px; margin: 22px 0;
+    }
+    .harvest-box .harvest-value { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--gold-dark); }
+
+    .timeline { position: relative; padding-left: 6px; margin-top: 22px; }
     .tl-item { display: flex; gap: 14px; padding-bottom: 20px; position: relative; }
     .tl-item:last-child { padding-bottom: 0; }
     .tl-node {
@@ -149,6 +189,10 @@
     .tl-body .tl-name { font-weight: 700; font-size: 13.5px; color: var(--ink); }
     .tl-body .tl-date { font-size: 12px; font-weight: 700; color: var(--field); margin: 2px 0 4px; }
     .tl-body .tl-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+    .factors-box { margin-top: 24px; border-top: 1px dashed var(--border); padding-top: 16px; }
+    .factors-box ul { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+    .factors-box li { margin-bottom: 6px; }
 
     .calc-note { margin-top: 20px; font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--border); padding-top: 14px; }
     .calc-note a { color: var(--soil); font-weight: 700; text-decoration: none; }
@@ -238,7 +282,7 @@
     <div class="page-hero-inner">
       <span class="page-hero-badge">🌱 Planting Calendar</span>
       <h1>When to Plant, Crop by Crop</h1>
-      <p class="lead">Pick your hemisphere and crop below to get a recommended planting window and a growth-stage timeline you can plan around.</p>
+      <p class="lead">Answer a few questions about your farm to get a recommended planting window, risk alerts and a growth-stage timeline — the same logic behind the AgriBase app's crop calendar.</p>
     </div>
     <svg class="page-hero-divider" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="#FBF3E6" d="M0,6 L40,22 L80,3 L120,30 L160,10 L200,34 L240,4 L280,26 L320,14 L360,32 L400,2 L440,20 L480,36 L520,8 L560,24 L600,12 L640,30 L680,4 L720,18 L760,34 L800,6 L840,28 L880,2 L920,22 L960,32 L1000,10 L1040,26 L1080,4 L1120,20 L1160,34 L1200,8 L1200,40 L0,40 Z"></path>
@@ -258,15 +302,48 @@
     <div class="tool-card">
 
       <p class="step-label">Step 1 · Your hemisphere</p>
-      <div class="hemi-row" id="hemiRow">
-        <div class="hemi-btn selected" data-hemi="south">🌍 Southern Hemisphere<br>(e.g. Zimbabwe, South Africa, Zambia, Malawi)</div>
-        <div class="hemi-btn" data-hemi="north">🌎 Northern Hemisphere<br>(e.g. Nigeria, Ghana, most of West Africa)</div>
+      <div class="choice-row" id="hemiRow">
+        <div class="choice-btn selected" data-val="south">🌍 Southern Hemisphere<br><span style="font-weight:400;font-size:11.5px;">Zimbabwe, South Africa, Zambia, Malawi</span></div>
+        <div class="choice-btn" data-val="north">🌎 Northern Hemisphere / Equatorial<br><span style="font-weight:400;font-size:11.5px;">Nigeria, Ghana, Kenya, most of West Africa</span></div>
       </div>
 
-      <p class="step-label">Step 2 · Choose a crop</p>
+      <div id="frostRow">
+        <p class="step-label">Step 2 · Does your area get frost in winter?</p>
+        <p class="step-sub">Highveld / inland plateau areas usually do; lowveld and coastal areas usually don't.</p>
+        <div class="choice-row">
+          <div class="choice-btn selected" data-frost="yes">🥶 Yes, frost risk in winter</div>
+          <div class="choice-btn" data-frost="no">☀️ No, frost-free area</div>
+        </div>
+      </div>
+
+      <div id="rainPatternRow" class="choice-hidden">
+        <p class="step-label">Step 2 · Rainfall pattern</p>
+        <p class="step-sub">Bimodal areas (e.g. Kenya, southern Ghana, SW Nigeria) get two rainy seasons a year.</p>
+        <div class="choice-row">
+          <div class="choice-btn selected" data-rain="bimodal">🌦️ Two rainy seasons (long &amp; short rains)</div>
+          <div class="choice-btn" data-rain="single">🌧️ One main wet season</div>
+        </div>
+      </div>
+
+      <p class="step-label">Step 3 · Production system</p>
+      <div class="choice-row" id="systemRow">
+        <div class="choice-btn selected" data-system="openField">🌾 Open Field</div>
+        <div class="choice-btn" data-system="greenhouse">🏡 Greenhouse / Tunnel</div>
+        <div class="choice-btn" data-system="shadeNet">🛡️ Shade Net</div>
+        <div class="choice-btn" data-system="containerGarden">🪴 Backyard / Container</div>
+      </div>
+
+      <p class="step-label">Step 4 · Water availability</p>
+      <div class="choice-row" id="waterRow">
+        <div class="choice-btn selected" data-water="irrigated">💧 Full Irrigation</div>
+        <div class="choice-btn" data-water="limitedIrrigation">🚰 Limited / Supplementary</div>
+        <div class="choice-btn" data-water="rainFed">🌧️ Rain-Fed Only</div>
+      </div>
+
+      <p class="step-label">Step 5 · Choose a crop</p>
       <div class="crop-grid" id="cropGrid"></div>
 
-      <p class="step-label">Step 3 · Planting date</p>
+      <p class="step-label">Step 6 · Planting date</p>
       <div class="date-row">
         <div class="date-field">
           <label for="plantDate">When do you plan to plant?</label>
@@ -277,17 +354,31 @@
       <button class="calc-button" onclick="generatePlan()">Generate Planting Plan</button>
 
       <div class="result" id="result">
-        <div class="result-window">
-          <p class="rw-label">Recommended planting window</p>
-          <p class="rw-value" id="rwValue">—</p>
-          <p class="rw-sub" id="rwSub"></p>
+
+        <div id="confidenceBlock"></div>
+
+        <p class="windows-title">Planting Windows</p>
+        <div id="windowsList"></div>
+
+        <p class="risk-title">Things to Check Before You Plant</p>
+        <div id="riskList"></div>
+
+        <div class="harvest-box">
+          <p class="rw-label" style="font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:var(--gold-dark);margin:0 0 6px;">Estimated harvest window</p>
+          <div class="harvest-value" id="harvestValue">—</div>
         </div>
 
+        <p class="timeline-title">Growth Stage Timeline</p>
         <div class="timeline" id="timeline"></div>
 
+        <div class="factors-box">
+          <p class="windows-title" style="margin-bottom:8px;">Why am I seeing this?</p>
+          <ul id="factorsList"></ul>
+        </div>
+
         <p class="calc-note">
-          These windows follow general seasonal patterns for your hemisphere — actual timing shifts with your specific region, rainfall and altitude.
-          For location-matched planting dates and saved crop calendars, use the <a href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">AgriBase app</a>.
+          This uses the same seasonal-window logic as the AgriBase app, but with general hemisphere presets rather than your exact GPS location — so treat it as a starting point.
+          For location-matched planting dates, saved crop calendars and stage reminders, use the <a href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">AgriBase app</a>.
         </p>
       </div>
 
@@ -309,8 +400,8 @@
       <span class="eyebrow" style="color:var(--soil); display:block; margin-bottom:12px;">Want it matched to your exact farm?</span>
       <h2>Get the Full Crop Calendar in the App</h2>
       <p class="section-intro" style="margin-bottom:0;">
-        The AgriBase app matches planting windows to your exact district, lets
-        you save crop plans, and sends stage-by-stage reminders.
+        The AgriBase app matches planting windows to your exact district via GPS,
+        lets you save crop plans, and sends stage-by-stage reminders.
       </p>
       <a class="button" href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">
         📲 Download the App
@@ -342,44 +433,75 @@
   </footer>
 
   <script>
-    // ---- Crop data: windows are [southern hemisphere, northern hemisphere] month ranges ----
+    // ==========================================================
+    // CROP DATA - approximate thermal profile + maturity range
+    // (mirrors the shape of HorticulturalCrop used by the app;
+    //  values here are general estimates, not the app's exact dataset)
+    // ==========================================================
     const CROPS = [
-      { id: 'maize',      name: 'Maize',      emoji: '🌽', daysMin: 90,  daysMax: 140, southWindow: 'Late Oct – Dec', northWindow: 'Late Apr – Jun' },
-      { id: 'groundnuts', name: 'Groundnuts', emoji: '🥜', daysMin: 90,  daysMax: 120, southWindow: 'Nov – Dec',      northWindow: 'May – Jun' },
-      { id: 'beans',      name: 'Beans',      emoji: '🫘', daysMin: 60,  daysMax: 90,  southWindow: 'Dec – Feb',      northWindow: 'Jun – Aug' },
-      { id: 'cabbage',    name: 'Cabbage',    emoji: '🥬', daysMin: 70,  daysMax: 100, southWindow: 'Feb – Apr',      northWindow: 'Aug – Oct' },
-      { id: 'tomato',     name: 'Tomatoes',   emoji: '🍅', daysMin: 70,  daysMax: 100, southWindow: 'Aug – Sep',      northWindow: 'Feb – Mar' },
-      { id: 'onion',      name: 'Onions',     emoji: '🧅', daysMin: 90,  daysMax: 120, southWindow: 'Apr – May',      northWindow: 'Oct – Nov' },
-      { id: 'butternut',  name: 'Butternut',  emoji: '🎃', daysMin: 90,  daysMax: 110, southWindow: 'Oct – Dec',      northWindow: 'Apr – Jun' },
-      { id: 'potato',     name: 'Potatoes',   emoji: '🥔', daysMin: 90,  daysMax: 120, southWindow: 'Feb – Apr',      northWindow: 'Aug – Oct' },
-      { id: 'sorghum',    name: 'Sorghum',    emoji: '🌾', daysMin: 100, daysMax: 130, southWindow: 'Nov – Dec',      northWindow: 'May – Jun' },
-      { id: 'cotton',     name: 'Cotton',     emoji: '🌱', daysMin: 150, daysMax: 180, southWindow: 'Oct – Nov',      northWindow: 'Apr – May' },
+      { id: 'maize',      name: 'Maize',      emoji: '🌽', daysMin: 90,  daysMax: 140, optimalTempMin: 18, optimalTempMax: 32, frostTolerance: 0.1 },
+      { id: 'groundnuts', name: 'Groundnuts', emoji: '🥜', daysMin: 90,  daysMax: 120, optimalTempMin: 20, optimalTempMax: 30, frostTolerance: 0.1 },
+      { id: 'beans',      name: 'Beans',      emoji: '🫘', daysMin: 60,  daysMax: 90,  optimalTempMin: 16, optimalTempMax: 27, frostTolerance: 0.1 },
+      { id: 'cabbage',    name: 'Cabbage',    emoji: '🥬', daysMin: 70,  daysMax: 100, optimalTempMin: 10, optimalTempMax: 22, frostTolerance: 0.6 },
+      { id: 'tomato',     name: 'Tomatoes',   emoji: '🍅', daysMin: 70,  daysMax: 100, optimalTempMin: 18, optimalTempMax: 27, frostTolerance: 0.05 },
+      { id: 'onion',      name: 'Onions',     emoji: '🧅', daysMin: 90,  daysMax: 120, optimalTempMin: 13, optimalTempMax: 24, frostTolerance: 0.5 },
+      { id: 'butternut',  name: 'Butternut',  emoji: '🎃', daysMin: 90,  daysMax: 110, optimalTempMin: 18, optimalTempMax: 30, frostTolerance: 0.05 },
+      { id: 'potato',     name: 'Potatoes',   emoji: '🥔', daysMin: 90,  daysMax: 120, optimalTempMin: 15, optimalTempMax: 22, frostTolerance: 0.2 },
+      { id: 'sorghum',    name: 'Sorghum',    emoji: '🌾', daysMin: 100, daysMax: 130, optimalTempMin: 18, optimalTempMax: 33, frostTolerance: 0.1 },
+      { id: 'cotton',     name: 'Cotton',     emoji: '🌱', daysMin: 150, daysMax: 180, optimalTempMin: 18, optimalTempMax: 32, frostTolerance: 0.05 },
     ];
 
-    // ---- Growth stage template as fractions of total maturity days ----
+    // Generic growth-stage template as fractions of total maturity days.
+    // The app scales real per-crop stage offsets; this is an approximation.
     const STAGE_TEMPLATE = [
-      { key: 'planting',      name: 'Planting',        emoji: '🌱', frac: 0,    note: 'Seed or transplant goes into the ground.' },
-      { key: 'establishment', name: 'Establishment',   emoji: '🌿', frac: 0.10, note: 'Roots settle in — keep soil consistently moist.' },
-      { key: 'vegetative',    name: 'Vegetative Growth', emoji: '🍃', frac: 0.35, note: 'Rapid leaf and stem growth — main window for weeding and first fertilizer top-up.' },
-      { key: 'flowering',     name: 'Flowering',       emoji: '🌸', frac: 0.60, note: 'Water stress here has the biggest yield impact — irrigate if you can.' },
-      { key: 'fillDevelopment', name: 'Fruit / Grain Fill', emoji: '🌾', frac: 0.85, note: 'Grain, fruit or tuber bulks up — keep monitoring for pests.' },
-      { key: 'harvest',       name: 'Harvest',         emoji: '🧺', frac: 1.0,  note: 'Crop reaches maturity — harvest and begin drying or curing.' },
+      { emoji: '🌱', name: 'Planting',            frac: 0,    note: 'Seed or transplant goes into the ground.' },
+      { emoji: '🌿', name: 'Establishment',       frac: 0.10, note: 'Roots settle in - keep soil consistently moist.' },
+      { emoji: '🍃', name: 'Vegetative Growth',   frac: 0.35, note: 'Rapid leaf and stem growth - main window for weeding and first fertilizer top-up.' },
+      { emoji: '🌸', name: 'Flowering',           frac: 0.60, note: 'Water stress here has the biggest yield impact - irrigate if you can.' },
+      { emoji: '🌾', name: 'Fruit / Grain Fill',  frac: 0.85, note: 'Grain, fruit or tuber bulks up - keep monitoring for pests.' },
+      { emoji: '🧺', name: 'Harvest',             frac: 1.0,  note: 'Crop reaches maturity - harvest and begin drying or curing.' },
     ];
 
-    let selectedHemi = 'south';
-    let selectedCrop = CROPS[0];
+    let state = {
+      hemi: 'south',
+      frost: 'yes',
+      rainPattern: 'bimodal',
+      system: 'openField',
+      water: 'irrigated',
+      crop: CROPS[0],
+    };
+
+    // ---- Selection wiring ----
+    function wireChoiceRow(rowId, dataAttr, stateKey, onChange) {
+      const row = document.getElementById(rowId);
+      row.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          row.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          state[stateKey] = btn.getAttribute(dataAttr);
+          if (onChange) onChange();
+        });
+      });
+    }
+
+    wireChoiceRow('hemiRow', 'data-val', 'hemi', () => {
+      const isSouth = state.hemi === 'south';
+      document.getElementById('frostRow').classList.toggle('choice-hidden', !isSouth);
+      document.getElementById('rainPatternRow').classList.toggle('choice-hidden', isSouth);
+    });
+    wireChoiceRow('frostRow', 'data-frost', 'frost');
+    wireChoiceRow('rainPatternRow', 'data-rain', 'rainPattern');
+    wireChoiceRow('systemRow', 'data-system', 'system');
+    wireChoiceRow('waterRow', 'data-water', 'water');
 
     function renderCropGrid() {
       const grid = document.getElementById('cropGrid');
       grid.innerHTML = '';
       CROPS.forEach(crop => {
         const btn = document.createElement('div');
-        btn.className = 'crop-btn' + (crop.id === selectedCrop.id ? ' selected' : '');
-        btn.innerHTML = `<span class="emoji">${crop.emoji}</span><span class="name">${crop.name}</span>`;
-        btn.onclick = () => {
-          selectedCrop = crop;
-          renderCropGrid();
-        };
+        btn.className = 'crop-btn' + (crop.id === state.crop.id ? ' selected' : '');
+        btn.innerHTML = '<span class="emoji">' + crop.emoji + '</span><span class="name">' + crop.name + '</span>';
+        btn.onclick = () => { state.crop = crop; renderCropGrid(); };
         grid.appendChild(btn);
       });
     }
@@ -388,65 +510,193 @@
       const grid = document.getElementById('refGrid');
       grid.innerHTML = '';
       CROPS.forEach(crop => {
-        const card = document.createElement('div');
-        card.className = 'ref-card';
-        card.innerHTML = `
-          <span class="emoji">${crop.emoji}</span>
-          <div class="name">${crop.name}</div>
-          <div class="days">${crop.daysMin}–${crop.daysMax} days</div>
-        `;
-        grid.appendChild(card);
+        grid.innerHTML += '<div class="ref-card"><span class="emoji">' + crop.emoji + '</span>' +
+          '<div class="name">' + crop.name + '</div>' +
+          '<div class="days">' + crop.daysMin + '\u2013' + crop.daysMax + ' days</div></div>';
       });
     }
-
-    document.querySelectorAll('.hemi-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedHemi = btn.getAttribute('data-hemi');
-        document.querySelectorAll('.hemi-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-    });
 
     function formatDate(d) {
       return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    // ==========================================================
+    // WINDOW CALCULATOR - ported from CropCalendarService._calculatePlantingWindows
+    // ==========================================================
+    function calculatePlantingWindows(crop, hemi, frost, rainPattern, system) {
+      const windows = [];
+      const isSouth = hemi === 'south';
+      const isCoolCrop = crop.optimalTempMax <= 24.0;
+      const isWarmCrop = crop.optimalTempMin >= 18.0;
+      const hasFrost = frost === 'yes';
+      const isProtected = system === 'greenhouse';
+
+      if (isSouth) {
+        if (isWarmCrop && !isProtected) {
+          if (hasFrost) {
+            windows.push({ type: 'main', label: 'Main Spring / Early Summer Window', period: 'August \u2013 November',
+              rationale: 'Ideal warming soil temperatures post-frost risk, maximizing vegetative growth before peak late-summer disease pressure.' });
+            windows.push({ type: 'secondary', label: 'Secondary Summer Window', period: 'December \u2013 February',
+              rationale: 'High humidity and heavy rains increase fungal foliar risks. Requires a strict preventative fungicide regime.' });
+            windows.push({ type: 'risky', label: 'High Frost Risk Period', period: 'May \u2013 July',
+              rationale: 'Sub-zero winter temperatures cause severe tissue freeze in open field plantings.' });
+          } else {
+            windows.push({ type: 'main', label: 'Winter Irrigated Prime Window', period: 'March \u2013 June',
+              rationale: 'Frost-free lowveld areas produce the highest quality warm-season crops in dry, sunny winter months under irrigation.' });
+            windows.push({ type: 'secondary', label: 'Spring Window', period: 'August \u2013 November',
+              rationale: 'Very hot summer conditions require high irrigation capacity and sunscald management.' });
+          }
+        } else if (isCoolCrop && !isProtected) {
+          windows.push({ type: 'main', label: 'Main Autumn / Winter Window', period: 'February \u2013 June',
+            rationale: 'Cool night temperatures suppress pests, encourage compact heads or sweet root bulking, and reduce disease pressure.' });
+          windows.push({ type: 'secondary', label: 'Early Spring Window', period: 'July \u2013 September',
+            rationale: 'Fast-maturing plantings perform well before extreme summer heat causes bolting or bitterness.' });
+        } else {
+          windows.push({ type: 'main', label: 'Year-Round Controlled Window', period: 'January \u2013 December (Protected)',
+            rationale: 'Greenhouse climate control buffers against cold snaps and heavy rains, permitting continuous succession planting.' });
+        }
+      } else {
+        if (rainPattern === 'bimodal') {
+          windows.push({ type: 'main', label: 'Long Rains Planting Window', period: 'March \u2013 May',
+            rationale: 'Primary rainy season offering maximum natural soil moisture.' });
+          windows.push({ type: 'secondary', label: 'Short Rains Window', period: 'September \u2013 November',
+            rationale: 'Secondary rainy season, ideal for rapid-cycle horticultural crops.' });
+        } else {
+          windows.push({ type: 'main', label: 'Main Wet Season Window', period: 'May \u2013 July',
+            rationale: 'Summer monsoon rains support open field production.' });
+          windows.push({ type: 'secondary', label: 'Dry Season Irrigated Window', period: 'October \u2013 February',
+            rationale: 'Cool dry season months produce premium disease-free crops under irrigation.' });
+        }
+      }
+
+      if (windows.length === 0) {
+        windows.push({ type: 'main', label: 'Estimated Regional Window', period: 'August \u2013 November', rationale: 'General seasonal recommendation.' });
+      }
+      return windows;
+    }
+
+    // ==========================================================
+    // RISK ALERTS - ported from CropCalendarService.generateRecommendation
+    // ==========================================================
+    function generateRiskAlerts(crop, hemi, frost, water, system) {
+      const alerts = [];
+      const isProtected = system === 'greenhouse' || system === 'shadeNet';
+      const hasFrost = frost === 'yes' && hemi === 'south';
+
+      if (hasFrost && crop.frostTolerance < 0.3 && !isProtected) {
+        alerts.push({ severity: 'danger', emoji: '\ud83e\udd76', title: 'High Frost Risk for Sensitive Crop',
+          desc: 'Open field planting during the cool period exposes sensitive vegetative growth to severe frost damage. Consider frost cover, a frost-free microclimate, or delaying until spring.' });
+      }
+
+      if (crop.optimalTempMax < 28.0 && !isProtected) {
+        alerts.push({ severity: 'warning', emoji: '\u2600\ufe0f', title: 'Heat Stress / Flower Drop Risk',
+          desc: crop.name + ' is sensitive to sustained temperatures above ' + Math.round(crop.optimalTempMax) + '\u00b0C. High heat may cause blossom drop or premature bolting \u2014 shade cloth or frequent light misting is recommended.' });
+      }
+
+      if (water === 'rainFed') {
+        alerts.push({ severity: 'warning', emoji: '\ud83c\udf27\ufe0f', title: 'Rainfall Dependency Alert',
+          desc: 'This plan depends heavily on reliable rainfall. Confirm adequate soil moisture and check local mid-season dry spell patterns before sowing.' });
+      } else if (water === 'irrigated') {
+        alerts.push({ severity: 'info', emoji: '\ud83d\udca7', title: 'Irrigation Management Note',
+          desc: 'Irrigation provides production flexibility, but thermal suitability, humidity and disease pressure still need monitoring.' });
+      } else {
+        alerts.push({ severity: 'info', emoji: '\ud83d\udebf', title: 'Supplementary Irrigation Note',
+          desc: 'Limited irrigation can bridge dry spells, but plan for reduced watering frequency and prioritize the crop\u2019s most water-sensitive stages.' });
+      }
+
+      alerts.push({ severity: 'info', emoji: '\ud83e\uddea', title: 'Soil Test Advisory',
+        desc: 'For accurate fertilizer rates and pH balance, consider a certified soil laboratory test before applying inputs.' });
+
+      return alerts;
+    }
+
+    // ==========================================================
+    // MAIN GENERATE
+    // ==========================================================
     function generatePlan() {
+      const crop = state.crop;
       const dateInput = document.getElementById('plantDate');
       const plantingDate = dateInput.value ? new Date(dateInput.value) : new Date();
+      const avgDays = Math.round((crop.daysMin + crop.daysMax) / 2);
 
-      const avgDays = Math.round((selectedCrop.daysMin + selectedCrop.daysMax) / 2);
-      const window = selectedHemi === 'south' ? selectedCrop.southWindow : selectedCrop.northWindow;
+      const windows = calculatePlantingWindows(crop, state.hemi, state.frost, state.rainPattern, state.system);
+      const riskAlerts = generateRiskAlerts(crop, state.hemi, state.frost, state.water, state.system);
 
-      document.getElementById('rwValue').textContent = `${selectedCrop.emoji} ${selectedCrop.name}: ${window}`;
-      document.getElementById('rwSub').textContent =
-        `Typical maturity ${selectedCrop.daysMin}–${selectedCrop.daysMax} days (about ${avgDays} days), for the ${selectedHemi === 'south' ? 'Southern' : 'Northern'} Hemisphere season.`;
+      const confidence = { level: 'moderate', label: '\ud83d\udfe1 Moderate Confidence',
+        note: 'Based on general hemisphere and crop-thermal presets, not your exact GPS location. Variety-specific timing may vary by roughly 1\u20132 weeks.' };
+      const confBlock = document.getElementById('confidenceBlock');
+      confBlock.innerHTML =
+        '<span class="confidence-badge confidence-' + confidence.level + '">' + confidence.label + '</span>' +
+        '<p class="confidence-note">' + confidence.note + '</p>';
+
+      const windowsList = document.getElementById('windowsList');
+      windowsList.innerHTML = '';
+      windows.forEach(w => {
+        const tagClass = w.type === 'main' ? 'tag-main' : (w.type === 'secondary' ? 'tag-secondary' : 'tag-risky');
+        const tagText = w.type === 'main' ? 'Main window' : (w.type === 'secondary' ? 'Secondary window' : 'High risk');
+        windowsList.innerHTML +=
+          '<div class="window-card ' + (w.type === 'main' ? 'main' : '') + '">' +
+            '<div class="window-head">' +
+              '<span class="window-label">' + w.label + '</span>' +
+              '<span class="window-tag ' + tagClass + '">' + tagText + '</span>' +
+            '</div>' +
+            '<div class="window-period">' + w.period + '</div>' +
+            '<p class="window-rationale">' + w.rationale + '</p>' +
+          '</div>';
+      });
+
+      const riskList = document.getElementById('riskList');
+      riskList.innerHTML = '';
+      riskAlerts.forEach(a => {
+        riskList.innerHTML +=
+          '<div class="risk-card risk-' + a.severity + '">' +
+            '<span class="risk-emoji">' + a.emoji + '</span>' +
+            '<div>' +
+              '<div class="risk-title2">' + a.title + '</div>' +
+              '<div class="risk-desc">' + a.desc + '</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      const harvestStart = new Date(plantingDate); harvestStart.setDate(harvestStart.getDate() + crop.daysMin);
+      const harvestEnd = new Date(plantingDate); harvestEnd.setDate(harvestEnd.getDate() + crop.daysMax);
+      document.getElementById('harvestValue').textContent = formatDate(harvestStart) + ' \u2013 ' + formatDate(harvestEnd);
 
       const timeline = document.getElementById('timeline');
       timeline.innerHTML = '';
-
       STAGE_TEMPLATE.forEach(stage => {
         const stageDate = new Date(plantingDate);
         stageDate.setDate(stageDate.getDate() + Math.round(avgDays * stage.frac));
-
-        const item = document.createElement('div');
-        item.className = 'tl-item';
-        item.innerHTML = `
-          <div class="tl-node">${stage.emoji}</div>
-          <div class="tl-body">
-            <div class="tl-name">${stage.name}</div>
-            <div class="tl-date">${formatDate(stageDate)}</div>
-            <p class="tl-note">${stage.note}</p>
-          </div>
-        `;
-        timeline.appendChild(item);
+        timeline.innerHTML +=
+          '<div class="tl-item">' +
+            '<div class="tl-node">' + stage.emoji + '</div>' +
+            '<div class="tl-body">' +
+              '<div class="tl-name">' + stage.name + '</div>' +
+              '<div class="tl-date">' + formatDate(stageDate) + '</div>' +
+              '<p class="tl-note">' + stage.note + '</p>' +
+            '</div>' +
+          '</div>';
       });
+
+      const systemLabels = { openField: 'Open Field', greenhouse: 'Greenhouse / Poly Tunnel', shadeNet: 'Shade Netting', containerGarden: 'Container / Home Garden' };
+      const waterLabels = { irrigated: 'Full Irrigation', limitedIrrigation: 'Supplementary / Limited Irrigation', rainFed: 'Rain-Fed (Dependent on Rainfall)' };
+      const factors = [
+        '\ud83c\udf0d Hemisphere: ' + (state.hemi === 'south' ? 'Southern' : 'Northern / Equatorial'),
+        state.hemi === 'south'
+          ? '\ud83e\udd76 Frost risk area: ' + (state.frost === 'yes' ? 'Yes' : 'No')
+          : '\ud83c\udf27\ufe0f Rainfall pattern: ' + (state.rainPattern === 'bimodal' ? 'Two rainy seasons' : 'Single wet season'),
+        '\ud83c\udf21\ufe0f Thermal suitability: Optimal range ' + crop.optimalTempMin + '\u00b0C \u2013 ' + crop.optimalTempMax + '\u00b0C',
+        '\ud83c\udf31 Crop: ' + crop.name + ' (general maturity range)',
+        '\ud83c\udfd7\ufe0f Production system: ' + systemLabels[state.system],
+        '\ud83d\udca7 Water availability: ' + waterLabels[state.water],
+        '\ud83d\udcc5 Planned planting date: ' + formatDate(plantingDate),
+      ];
+      document.getElementById('factorsList').innerHTML = factors.map(f => '<li>' + f + '</li>').join('');
 
       document.getElementById('result').classList.add('show');
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Init
     document.getElementById('plantDate').valueAsDate = new Date();
     renderCropGrid();
     renderRefGrid();
